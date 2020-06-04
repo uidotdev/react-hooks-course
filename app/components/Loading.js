@@ -20,15 +20,15 @@ export default function Loading({ speed, text }) {
 
   React.useEffect(() => {
     interval.current = window.setInterval(() => {
-      console.log("load cycle");
-      content === text + "..." ? setContent(text) : setContent(content + ".");
+      console.log("load cycle", content+".");
+      content === text + "..." ? setContent(text) : setContent((content) => content + ".");
     }, speed);
 
     return () => {
       clearInterval(interval.current);
       interval.current = null;
     };
-  }, []);
+  }, [speed, text]);
 
   return <p style={styles.content}>{content}</p>;
 }
