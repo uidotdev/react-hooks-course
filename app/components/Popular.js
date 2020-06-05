@@ -90,46 +90,50 @@ ReposGrid.propTypes = {
   repos: PropTypes.array.isRequired,
 };
 
+function popularReducer(state, action) {
+  switch (action.type) {
+    case "success":
+      return { ...state, [action.selectedLanguage]: action.repos };
+    case "error":
+      return { ...state, error: action.error.message };
+    default:
+      throw new Error("Action doesn exist");
+  }
+}
+
 export default function Popular() {
   const [selectedLanguage, setSelectedLanguage] = React.useState("All");
-  const [repos, setRepos] = React.useState({});
-  const [error, setError] = React.useState(null);
+  const [state, distpatch] = React.useReducer(popularReducer, { error: null });
+  const fetchedLanguages = React.useRef([]);
 
-  const updateLanguage = (selectedLanguage) => {
-    setSelectedLanguage(selectedLanguage);
-    setError(null);
-
-    if (!repos[selectedLanguage]) {
-      fetchPopularRepos(selectedLanguage)
-        .then((data) => {
-          setRepos({ ...repos, [selectedLanguage]: data });
-        })
-        .catch(() => {
-          console.warn("Error fetching repos: ", error);
-          setError(`There was an error fetching the repositories.`);
-        });
-    }
-  };
   const isLoading = () => {
-    return !repos[selectedLanguage] && error === null;
+    return !state[selectedLanguage] && state.error === null;
   };
 
   React.useEffect(() => {
-    return updateLanguage("All");
-  }, []);
+    if (fetchedLanguages.current.includes(selectedLanguage)===false) {
+      fetchedLanguages.current.push(selectedLanguage);
+
+      fetchPopularRepos(selectedLanguage)
+        .then((repos) =>
+          distpatch({ type: "success", selectedLanguage, repos })
+        )
+        .catch((error) => distpatch({ type: "error", error }));
+    }
+  }, [selectedLanguage, fetchedLanguages]);
 
   return (
     <React.Fragment>
       <LangaugesNav
         selected={selectedLanguage}
-        onUpdateLanguage={updateLanguage}
+        onUpdateLanguage={setSelectedLanguage}
       />
 
       {isLoading() && <Loading text="Fetching Repos" />}
 
-      {error && <p className="center-text error">{error}</p>}
+      {state.error && <p className="center-text error">{state.error}</p>}
 
-      {repos[selectedLanguage] && <ReposGrid repos={repos[selectedLanguage]} />}
+      {state[selectedLanguage] && <ReposGrid repos={state[selectedLanguage]} />}
     </React.Fragment>
   );
 }

@@ -20,8 +20,7 @@ export default function Loading({ speed, text }) {
 
   React.useEffect(() => {
     interval.current = window.setInterval(() => {
-      console.log("load cycle", content+".");
-      content === text + "..." ? setContent(text) : setContent((content) => content + ".");
+       setContent((content) => content === text + "..." ? text : content + ".");
     }, speed);
 
     return () => {
