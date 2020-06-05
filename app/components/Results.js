@@ -1,5 +1,4 @@
 import React from "react";
-import { battle } from "../utils/api";
 import {
   FaCompass,
   FaBriefcase,
@@ -14,6 +13,7 @@ import Loading from "./Loading";
 import Tooltip from "./Tooltip";
 import queryString from "query-string";
 import { Link } from "react-router-dom";
+import { useResultsPlayerReducer } from "../hooks/useResultsPlayerReducer";
 
 function ProfileList({ profile }) {
   return (
@@ -54,50 +54,12 @@ ProfileList.propTypes = {
   profile: PropTypes.object.isRequired,
 };
 
-function resultsReducer(prevState, action) {
-  switch (action.type) {
-    case "success":
-      return {
-        ...prevState,
-        winner: action.players[0],
-        loser: action.players[1],
-        error: null,
-        loading: false,
-      };
-    case "error":
-      return {
-        ...prevState,
-        error: action.error,
-        loading: false,
-      };
-    default:
-      throw new Error(action.error);
-  }
-};
-
 export default function Results({ location }) {
   const { playerOne, playerTwo } = queryString.parse(location.search);
 
-  const [state, dispatch] = React.useReducer(resultsReducer, {
-    winner: null,
-    loser: null,
-    error: null,
-    loading: true,
-  });
-  const { winner, loser, error, loading } = state;
-
-  React.useEffect(() => {
-
-    battle([playerOne, playerTwo])
-      .then((players) => {
-        dispatch({ type: "success", players });
-      })
-      .catch(({ message }) => {
-        dispatch({ type: "error", error: message });
-      });
-
-  }, [playerOne, playerTwo]);
-
+  // state, reducerDispatcher
+  const [{ winner, loser, error, loading }] = useResultsPlayerReducer(playerOne, playerTwo );
+  
   if (loading === true) {
     return <Loading text="Battling" />;
   }

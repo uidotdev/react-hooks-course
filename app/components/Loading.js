@@ -15,8 +15,6 @@ const styles = {
 export default function Loading({ speed, text }) {
   const [content, setContent] = React.useState(text || "");
   let interval = React.useRef(null);
-  // content === text + "..." ? setContent(text) : setContent(content + ".");
-  console.log("rendering load");
 
   React.useEffect(() => {
     interval.current = window.setInterval(() => {
