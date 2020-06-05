@@ -10,6 +10,7 @@ import {
 import Card from "./Card";
 import Loading from "./Loading";
 import Tooltip from "./Tooltip";
+import { popularReducer } from "../reducers/popularReducer";
 
 function LangaugesNav({ selected, onUpdateLanguage }) {
   const languages = ["All", "JavaScript", "Ruby", "Java", "CSS", "Python"];
@@ -89,17 +90,6 @@ function ReposGrid({ repos }) {
 ReposGrid.propTypes = {
   repos: PropTypes.array.isRequired,
 };
-
-function popularReducer(state, action) {
-  switch (action.type) {
-    case "success":
-      return { ...state, [action.selectedLanguage]: action.repos };
-    case "error":
-      return { ...state, error: action.error.message };
-    default:
-      throw new Error("Action doesn exist");
-  }
-}
 
 export default function Popular() {
   const [selectedLanguage, setSelectedLanguage] = React.useState("All");
