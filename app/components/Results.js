@@ -54,39 +54,48 @@ ProfileList.propTypes = {
   profile: PropTypes.object.isRequired,
 };
 
+function resultsReducer(prevState, action) {
+  switch (action.type) {
+    case "success":
+      return {
+        ...prevState,
+        winner: action.players[0],
+        loser: action.players[1],
+        error: null,
+        loading: false,
+      };
+    case "error":
+      return {
+        ...prevState,
+        error: action.error,
+        loading: false,
+      };
+    default:
+      throw new Error(action.error);
+  }
+};
+
 export default function Results({ location }) {
-  const [state, _setState] = React.useState({
+  const { playerOne, playerTwo } = queryString.parse(location.search);
+
+  const [state, dispatch] = React.useReducer(resultsReducer, {
     winner: null,
     loser: null,
     error: null,
-    loading: true
+    loading: true,
   });
   const { winner, loser, error, loading } = state;
-  const [playerOne, setPlayerOne] = React.useState(() => {
-    const { playerOne } = queryString.parse(location.search);
-    return playerOne;
-  });
-  const [playerTwo, setPlayerTwo] = React.useState(() => {
-    const { playerTwo } = queryString.parse(location.search);
-    return playerTwo;
-  });
 
   React.useEffect(() => {
+
     battle([playerOne, playerTwo])
       .then((players) => {
-        _setState({
-          winner: players[0],
-          loser: players[1],
-          error: null,
-          loading: false,
-        });
+        dispatch({ type: "success", players });
       })
       .catch(({ message }) => {
-        _setState({
-          error: message,
-          loading: false,
-        });
+        dispatch({ type: "error", error: message });
       });
+
   }, [playerOne, playerTwo]);
 
   if (loading === true) {
