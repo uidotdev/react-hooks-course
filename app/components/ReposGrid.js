@@ -11,7 +11,7 @@ import Tooltip from "./Tooltip";
 
 export default function ReposGrid({ repos=[] }) {
   return (
-    <ul data-testid="repos-grid" className="grid space-around">
+    <ul data-testId="repos-grid" className="grid space-around">
       {repos.map((repo, index) => {
         const {
           name,
